@@ -1,18 +1,17 @@
 import mysql.connector
 import click
-from flask import current_app, g
+from flask import g
 from flask.cli import with_appcontext
 from .schema import instructions
+from .secrets import sql_config
 
 
 def get_db():
 	if "db" not in g:
-		g.db = mysql.connector.connect(
-			host=current_app.config["DATABASE_HOST"],
-			user=current_app.config["DATABASE_USER"],
-			password=current_app.config["DATABASE_PASSWORD"],
-			database=current_app.config["DATABASE"]
-		)
+		g.db = mysql.connector.connect(**sql_config)
+		if g.db.is_connected():
+			db_Info = g.db.get_server_info()
+			print(f"connected to mysql version {db_Info}")
 		g.c = g.db.cursor(dictionary=True)
 		
 	return g.db, g.c
@@ -40,3 +39,4 @@ def init_db_command():
 def init_app(app):
 	app.teardown_appcontext(close_db)
 	app.cli.add_command(init_db_command)
+	

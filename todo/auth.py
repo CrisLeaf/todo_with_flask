@@ -14,6 +14,7 @@ def register():
 		username = request.form["username"]
 		password = request.form["password"]
 		db, c = get_db()
+	
 		error = None
 		c.execute(
 			"select id from user where username = %s",
@@ -36,7 +37,7 @@ def register():
 			return redirect(url_for("auth.login"))
 		
 		flash(error)
-		
+	
 	return render_template("auth/register.html")
 
 @bp.route("/login", methods=["GET", "POST"])
